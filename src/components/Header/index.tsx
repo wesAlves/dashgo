@@ -7,14 +7,19 @@ import {
   Box,
   Avatar,
   useBreakpointValue,
+  IconButton,
 } from "@chakra-ui/react";
 import {
+  RiMenuLine,
   RiNotificationLine,
   RiSearch2Line,
   RiUserAddLine,
 } from "react-icons/ri";
+import { useSidebarDrawer } from "../../context/SidebarDrawerContext";
 
 export function Header() {
+  const { onOpen } = useSidebarDrawer();
+
   const isWideVersion = useBreakpointValue({
     base: false,
     lg: true,
@@ -31,6 +36,17 @@ export function Header() {
       px="6"
       align="center"
     >
+      {!isWideVersion && (
+        <IconButton
+          aria-label="Open navigation"
+          icon={<Icon as={RiMenuLine} />}
+          fontSize="24"
+          variant="unstyled"
+          onClick={onOpen}
+          mr="2"
+        ></IconButton>
+      )}
+
       <Text
         fontSize={["2xl", "3xl"]}
         fontWeight="bold"
