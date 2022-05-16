@@ -28,7 +28,7 @@ export function PaginationItem({ number, isCurrent }: PaginationItemProps) {
           bg="gray.700"
           _hover={{ bgColor: "pink.500" }}
         >
-          2
+          {number}
         </Button>
       )}
     </>
