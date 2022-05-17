@@ -30,13 +30,18 @@ export default function UserList() {
 
   const { data, isLoading, isFetching, error } = useUsers(page);
 
-  async function handlePrefetchUser(userId: number) {
-    await queryClient.prefetchQuery(['user', userId], async () => {
-      const response = await api.get(`users/${userId}`)
+  async function handlePrefetchUser(userId: number | string) {
+    await queryClient.prefetchQuery(
+      ["user", userId],
+      async () => {
+        const response = await api.get(`users/${userId}`);
 
-      return response.data
-    })
-
+        return response.data;
+      },
+      {
+        staleTime: 1000 * 60 * 10, // 10 minutes,
+      }
+    );
   }
 
   return (
@@ -97,8 +102,11 @@ export default function UserList() {
                         </Td>
                         <Td>
                           <Box>
-                            <Link color='purple.400', onMouseEnter={() => handlePrefetchUser(user.id)}>
-                            <Text fontWeight="bold">{user.name}</Text>
+                            <Link
+                              color="purple.400"
+                              onMouseEnter={() => handlePrefetchUser(user.id)}
+                            >
+                              <Text fontWeight="bold">{user.name}</Text>
                             </Link>
                             <Text fontWeight="sm" color="gray.300">
                               {user.email}
@@ -136,7 +144,11 @@ export default function UserList() {
     </Box>
   );
 }
-function async(): import("react-query").FetchQueryOptions<unknown, unknown, unknown, (string | number)[]> {
+function async(): import("react-query").FetchQueryOptions<
+  unknown,
+  unknown,
+  unknown,
+  (string | number)[]
+> {
   throw new Error("Function not implemented.");
 }
-
