@@ -28,11 +28,12 @@ export default function SignIn() {
   const { signIn } = useContext(AuthContext);
 
   const handleSignIn: SubmitErrorHandler<SignInFormData> = async (values) => {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    const data = { email: values.email, password: values.password };
+    const email = String(values.email);
+    const password = String(values.password);
 
-    await signIn(data);
+    await signIn({ email, password });
   };
 
   return (
