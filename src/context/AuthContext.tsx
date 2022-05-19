@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { createContext, ReactNode, useEffect, useState } from "react";
-import { setCookie, parseCookies } from "nookies";
+import { setCookie, parseCookies, destroyCookie } from "nookies";
 
 import { authApi } from "../services/authApi";
 
@@ -44,7 +44,10 @@ export function AuthProvider({ children }) {
 
           setUser({ email, permissions, roles });
         } catch (err) {
-          console.log(err);
+          destroyCookie(undefined, "dashgo.token");
+          destroyCookie(undefined, "dashgo.refreshTokne");
+
+          router.push("/");
         }
       });
     }

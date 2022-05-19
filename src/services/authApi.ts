@@ -1,5 +1,6 @@
 import axios, { AxiosError } from "axios";
-import { parseCookies, setCookie } from "nookies";
+import router from "next/router";
+import { destroyCookie, parseCookies, setCookie } from "nookies";
 
 let cookies = parseCookies();
 let isRefreshing = false;
@@ -80,8 +81,13 @@ authApi.interceptors.response.use(
           });
         });
       } else {
-        //logout user
+        destroyCookie(undefined, "dashgo.token");
+        destroyCookie(undefined, "dashgo.refreshToken");
+
+        router.push("/");
       }
     }
+
+    return Promise.reject(error);
   }
 );
