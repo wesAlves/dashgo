@@ -1,5 +1,7 @@
 import { useRouter } from "next/router";
 import { createContext, ReactNode, useState } from "react";
+import { setCookie } from "nookies";
+
 import { authApi } from "../services/authApi";
 
 type SignInCredentials = {
@@ -39,7 +41,16 @@ export function AuthProvider({ children }) {
         password,
       });
 
-      const { permissions, roles } = response.data;
+      const { token, refreshToken, permissions, roles } = response.data;
+
+      setCookie(undefined, "dashgo.token", token, {
+        maxAge: 60 * 60 * 24 * 30,
+        path: "/",
+      });
+      setCookie(undefined, "dashgo.refreshToken", refreshToken, {
+        maxAge: 60 * 60 * 24 * 30,
+        path: "/",
+      });
 
       setUser({
         email,

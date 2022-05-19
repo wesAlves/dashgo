@@ -21,6 +21,7 @@
     "framer-motion": "^6.3.3",
     "miragejs": "^0.1.44",
     "next": "12.1.6",
+    "nookies": "^2.5.2",
     "react": "18.1.0",
     "react-apexcharts": "^1.4.0",
     "react-dom": "18.1.0",
@@ -32,6 +33,7 @@
   "devDependencies": {
     "@faker-js/faker": "^6.3.1",
     "@types/node": "^17.0.32",
+    "@types/nookies": "^2.0.3",
     "@types/react": "^18.0.9",
     "eslint": "8.15.0",
     "eslint-config-next": "12.1.6",
