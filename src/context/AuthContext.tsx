@@ -39,9 +39,13 @@ export function AuthProvider({ children }) {
 
     if (token) {
       authApi.get("/me").then((response) => {
-        const { email, permissions, roles } = response.data;
+        try {
+          const { email, permissions, roles } = response.data;
 
-        setUser({ email, permissions, roles });
+          setUser({ email, permissions, roles });
+        } catch (err) {
+          console.log(err);
+        }
       });
     }
   }, []);
