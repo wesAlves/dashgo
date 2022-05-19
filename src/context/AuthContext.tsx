@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
-import { createContext, ReactNode, useState } from "react";
-import { setCookie } from "nookies";
+import { createContext, ReactNode, useEffect, useState } from "react";
+import { setCookie, parseCookies } from "nookies";
 
 import { authApi } from "../services/authApi";
 
@@ -34,6 +34,18 @@ export function AuthProvider({ children }) {
 
   const isAuthenticated = !!user;
 
+  useEffect(() => {
+    const { "dashgo.token": token } = parseCookies();
+
+    if (token) {
+      authApi.get("/me").then((response) => {
+        const { email, permissions, roles } = response.data;
+
+        setUser({ email, permissions, roles });
+      });
+    }
+  }, []);
+
   async function signIn({ email, password }: SignInCredentials) {
     try {
       const response = await authApi.post("/sessions", {
@@ -57,6 +69,8 @@ export function AuthProvider({ children }) {
         permissions,
         roles,
       });
+
+      authApi.defaults.headers["Authorization"] = `Bearer ${token}`;
 
       router.push("/dashboard");
     } catch (error) {
