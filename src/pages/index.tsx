@@ -6,6 +6,8 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { GetServerSideProps } from "next/types";
+import { parseCookies } from "nookies";
 
 type SignInFormData = {
   email: string;
@@ -76,3 +78,20 @@ export default function SignIn() {
     </Flex>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const cookies = parseCookies(ctx);
+
+  if (cookies["dashgo.token"]) {
+    return {
+      redirect: {
+        destination: "/dashboard",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
+};
