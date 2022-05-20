@@ -8,6 +8,7 @@ import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { GetServerSideProps } from "next/types";
 import { parseCookies } from "nookies";
+import { withSSRGuest } from "../utils/withSSRGuest";
 
 type SignInFormData = {
   email: string;
@@ -79,19 +80,10 @@ export default function SignIn() {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const cookies = parseCookies(ctx);
-
-  if (cookies["dashgo.token"]) {
+export const getServerSideProps: GetServerSideProps = withSSRGuest(
+  async (ctx) => {
     return {
-      redirect: {
-        destination: "/dashboard",
-        permanent: false,
-      },
+      props: {},
     };
   }
-
-  return {
-    props: {},
-  };
-};
+);
