@@ -62,6 +62,13 @@ authApi.interceptors.response.use(
               failedRequestsQueue.forEach((request) => request.onFailure(err));
 
               failedRequestsQueue = [];
+
+              if (typeof window) {
+                destroyCookie(undefined, "dashgo.token");
+                destroyCookie(undefined, "dashgo.refreshToken");
+
+                router.push("/");
+              }
             })
             .finally(() => {
               isRefreshing = false;
