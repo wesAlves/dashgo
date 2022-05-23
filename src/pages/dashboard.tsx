@@ -89,8 +89,6 @@ export const getServerSideProps: GetServerSideProps = withSSRAuth(
     const apiAuthClient = setupAuthClient(ctx);
     const response = await apiAuthClient.get("/me");
 
-    console.log(response.data);
-
     return {
       props: {},
     };
