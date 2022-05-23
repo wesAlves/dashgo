@@ -66,7 +66,6 @@ export function Pagination({
 
         {previeousPages.length > 0 &&
           previeousPages.map((page) => {
-            console.log(page);
             return (
               <PaginationItem
                 onPageChange={onPageChange}
@@ -84,7 +83,6 @@ export function Pagination({
 
         {nextPages.length > 0 &&
           nextPages.map((page) => {
-            console.log(page);
             return (
               <PaginationItem
                 onPageChange={onPageChange}

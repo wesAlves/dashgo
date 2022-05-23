@@ -56,8 +56,6 @@ const series = [{ name: "series1", data: [31, 120, 10, 28, 61, 18, 109] }];
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
 
-  console.log(user);
-
   return (
     <Flex direction="column" h="100vh">
       <Header />
@@ -89,7 +87,7 @@ export const getServerSideProps: GetServerSideProps = withSSRAuth(
     const apiAuthClient = setupAuthClient(ctx);
     const response = await apiAuthClient.get("/me");
 
-    // console.log(response.data);
+    console.log(response.data);
 
     return {
       props: {},
