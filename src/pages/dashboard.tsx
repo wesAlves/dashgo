@@ -1,6 +1,7 @@
 import { Box, Flex, SimpleGrid, Text, theme } from "@chakra-ui/react";
 import { GetServerSideProps } from "next";
 import dynamic from "next/dynamic";
+import { destroyCookie } from "nookies";
 import { useContext } from "react";
 import { Header } from "../components/Header";
 import { Sidebar } from "../components/Sidebar";
@@ -8,6 +9,7 @@ import { AuthContext } from "../context/AuthContext";
 import { api } from "../services/api";
 import { authApi } from "../services/apiAuthClient";
 import { setupAuthClient } from "../services/authApi";
+import { AuthTokenError } from "../services/errors/AuthTokenError";
 import { withSSRAuth } from "../utils/withSSRAuth";
 
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });

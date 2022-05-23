@@ -1,6 +1,7 @@
 import axios, { AxiosError } from "axios";
 import router from "next/router";
 import { destroyCookie, parseCookies, setCookie } from "nookies";
+import { AuthTokenError } from "./errors/AuthTokenError";
 
 let isRefreshing = false;
 let failedRequestsQueue = [];
@@ -72,6 +73,8 @@ export function setupAuthClient(ctx = undefined) {
                   destroyCookie(ctx, "dashgo.refreshToken");
 
                   router.push("/");
+                } else {
+                  return Promise.reject(new AuthTokenError());
                 }
               })
               .finally(() => {
