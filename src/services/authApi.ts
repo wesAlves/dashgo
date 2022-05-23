@@ -2,99 +2,106 @@ import axios, { AxiosError } from "axios";
 import router from "next/router";
 import { destroyCookie, parseCookies, setCookie } from "nookies";
 
-let cookies = parseCookies();
 let isRefreshing = false;
 let failedRequestsQueue = [];
 
-export const authApi = axios.create({
-  baseURL: "http://localhost:3333",
-  headers: {
-    Authorization: `Bearer ${cookies["dashgo.token"]}`,
-  },
-});
+export function setupAuthClient(ctx = undefined) {
+  let cookies = parseCookies(ctx);
 
-authApi.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error: AxiosError) => {
-    if (error.response.status === 401) {
-      if (error.response.data?.code === "token.expired") {
-        cookies = parseCookies();
+  const authApi = axios.create({
+    baseURL: "http://localhost:3333",
+    headers: {
+      Authorization: `Bearer ${cookies["dashgo.token"]}`,
+    },
+  });
 
-        const { "dashgo.refreshToken": refreshToken } = cookies;
-        const originalCongir = error.config;
+  authApi.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    (error: AxiosError) => {
+      if (error.response.status === 401) {
+        if (error.response.data?.code === "token.expired") {
+          cookies = parseCookies();
 
-        if (!isRefreshing) {
-          isRefreshing = true;
+          const { "dashgo.refreshToken": refreshToken } = cookies;
+          const originalCongir = error.config;
 
-          authApi
-            .post("/refresh", {
-              refreshToken,
-            })
-            .then((response) => {
-              const { token } = response.data;
+          if (!isRefreshing) {
+            isRefreshing = true;
 
-              setCookie(undefined, "dashgo.token", token, {
-                maxAge: 60 * 60 * 24 * 30,
-                path: "/",
-              });
+            authApi
+              .post("/refresh", {
+                refreshToken,
+              })
+              .then((response) => {
+                const { token } = response.data;
 
-              setCookie(
-                undefined,
-                "dashgo.refreshToken",
-                response.data.refreshToken,
-                {
+                setCookie(ctx, "dashgo.token", token, {
                   maxAge: 60 * 60 * 24 * 30,
                   path: "/",
+                });
+
+                setCookie(
+                  ctx,
+                  "dashgo.refreshToken",
+                  response.data.refreshToken,
+                  {
+                    maxAge: 60 * 60 * 24 * 30,
+                    path: "/",
+                  }
+                );
+
+                authApi.defaults.headers["Authorization"] = `Bearer ${token}`;
+
+                failedRequestsQueue.forEach((request) =>
+                  request.onSuccess(token)
+                );
+
+                failedRequestsQueue = [];
+              })
+              .catch((err) => {
+                failedRequestsQueue.forEach((request) =>
+                  request.onFailure(err)
+                );
+
+                failedRequestsQueue = [];
+
+                if (typeof window) {
+                  destroyCookie(ctx, "dashgo.token");
+                  destroyCookie(ctx, "dashgo.refreshToken");
+
+                  router.push("/");
                 }
-              );
+              })
+              .finally(() => {
+                isRefreshing = false;
+              });
+          }
 
-              authApi.defaults.headers["Authorization"] = `Bearer ${token}`;
+          return new Promise((resolve, reject) => {
+            failedRequestsQueue.push({
+              onSuccess: (token: string) => {
+                originalCongir.headers["Authorization"] = `Bearer ${token}`;
 
-              failedRequestsQueue.forEach((request) =>
-                request.onSuccess(token)
-              );
-
-              failedRequestsQueue = [];
-            })
-            .catch((err) => {
-              failedRequestsQueue.forEach((request) => request.onFailure(err));
-
-              failedRequestsQueue = [];
-
-              if (typeof window) {
-                destroyCookie(undefined, "dashgo.token");
-                destroyCookie(undefined, "dashgo.refreshToken");
-
-                router.push("/");
-              }
-            })
-            .finally(() => {
-              isRefreshing = false;
+                resolve(authApi(originalCongir));
+              },
+              onFailure: (err: AxiosError) => {
+                reject(err);
+              },
             });
-        }
-
-        return new Promise((resolve, reject) => {
-          failedRequestsQueue.push({
-            onSuccess: (token: string) => {
-              originalCongir.headers["Authorization"] = `Bearer ${token}`;
-
-              resolve(authApi(originalCongir));
-            },
-            onFailure: (err: AxiosError) => {
-              reject(err);
-            },
           });
-        });
-      } else {
-        destroyCookie(undefined, "dashgo.token");
-        destroyCookie(undefined, "dashgo.refreshToken");
+        } else {
+          destroyCookie(ctx, "dashgo.token");
+          destroyCookie(ctx, "dashgo.refreshToken");
 
-        router.push("/");
+          router.push("/");
+        }
       }
-    }
 
-    return Promise.reject(error);
-  }
-);
+      return Promise.reject(error);
+    }
+  );
+
+  return authApi;
+}
